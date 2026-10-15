@@ -1,15 +1,16 @@
 {
-  "name": "New Apostolic Church Records",
-  "short_name": "NAC Records",
-  "start_url": "./index.html",
+  "name": "NAC SEPIK REPORTS",
+  "short_name": "NAC Reports",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#0A3D8F",
   "theme_color": "#0A3D8F",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/25/25231.png",
+      "src": "IMG-20261015-WA6264.jpg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/jpeg",
+      "purpose": "any maskable"
     }
   ]
 }
