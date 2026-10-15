@@ -1,19 +1,78 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NAC Reports</title><style>body{margin:0;font-family:system-ui;background:#eef2ff}header{background:#0A3D8F;color:#fff;padding:14px;text-align:center}nav{display:flex;background:#fff}nav button{flex:1;padding:12px;border:0;background:#fff;font-weight:800;border-bottom:3px solid transparent}nav button.active{border-color:#FFD700;color:#0A3D8F}.tab{display:none;padding:12px;max-width:640px;margin:auto}.tab.active{display:block}.card{background:#fff;border-radius:14px;padding:14px;box-shadow:0 2px 14px #0001;margin-bottom:12px}label{display:block;font-size:10px;font-weight:800;color:#445;margin:10px 0 3px;text-transform:uppercase}input,select{width:100%;padding:11px;border:2px solid #dde;border-radius:9px;font-size:15px}.btn{width:100%;padding:13px;border:0;border-radius:10px;font-weight:800;margin-top:10px;background:#0A3D8F;color:#fff}.gold{background:#FFD700;color:#000}#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 18px;border-radius:30px;display:none}</style></head><body>
-<header><h1>† NAC SEPIK REPORTS</h1><p>District - Free Text (Type Any)</p></header>
-<nav><button class="active" onclick="showTab('new',this)">New Report</button><button onclick="showTab('hist',this)">History</button><button onclick="showTab('sum',this)">Summary</button></nav>
-<div id="new" class="tab active"><div class="card">
-<label>Receipt No. *</label><input id="receiptNo"><label>Congregation *</label><input id="cong" placeholder="Hambeli">
-<label>District * - TYPE ANY (free text)</label><input id="dist" list="dl" placeholder="e.g. Central Yangoru"><datalist id="dl"><option value="Central Yangoru"><option value="Wewak"><option value="Maprik"><option value="Angoram"><option value="Vanimo"><option value="Lumi"><option value="Aitape"><option value="Yangoru"><option value="Sawosa"><option value="East Yangoru"><option value="West Yangoru"></datalist><div style="font-size:11px;color:#666">You can type any district - matches your Excel exactly</div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><label>AM/PM</label><select id="ampm"><option>AM</option><option>PM</option></select></div><div><label>Day</label><input id="day" type="number"></div></div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><label>Month</label><select id="month"><option value="1">Jan</option><option value="2">Feb</option><option value="3">Mar</option><option value="4">Apr</option><option value="5">May</option><option value="6">Jun</option><option value="7">Jul</option><option value="8">Aug</option><option value="9">Sep</option><option value="10" selected>Oct</option><option value="11">Nov</option><option value="12">Dec</option></select></div><div><label>Year</label><input id="year" type="number"></div></div>
-<label>Offering (K) *</label><input id="off" type="number" step="0.01"><label>Attendance *</label><input id="att" type="number">
-<label>Officiant 1 *</label><input id="o1"><label>Officiant 2</label><input id="o2"><label>Officiant 3</label><input id="o3">
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px"><div><label>Sealed</label><input id="se" type="number" value="0"></div><div><label>Deaths</label><input id="de" type="number" value="0"></div><div><label>Book No.</label><input id="bn"></div></div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><label>SS Att</label><input id="ssa" type="number" value="0"></div><div><label>SS Off</label><input id="sso" type="number" value="0"></div></div>
-<label>Confirmands</label><input id="cfa" type="number" value="0">
-<button class="btn" onclick="saveR()">† SAVE REPORT</button><button class="btn gold" onclick="exp()">Export Excel CSV</button><div id="msg" style="font-size:12px;margin-top:8px"></div>
-</div></div>
-<div id="hist" class="tab"><div class="card"><b>History</b><div id="hl"></div></div></div><div id="sum" class="tab"><div class="card" id="sb"></div></div><div id="toast"></div>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NAC Reports</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0A3D8F">
+<style>
+body{margin:0;font-family:system-ui;background:#eef2ff}
+header{background:#0A3D8F;color:#fff;padding:14px;text-align:center}
+nav{display:flex;background:#fff;position:sticky;top:0}
+nav button{flex:1;padding:12px;border:0;background:#fff;font-weight:800;border-bottom:3px solid transparent}
+nav button.active{border-color:#FFD700;color:#0A3D8F}
+.tab{display:none;padding:12px;max-width:640px;margin:auto}
+.tab.active{display:block}
+.card{background:#fff;border-radius:14px;padding:14px;box-shadow:0 2px 14px #0001;margin-bottom:12px}
+label{display:block;font-size:10px;font-weight:800;color:#445;margin:10px 0 3px;text-transform:uppercase}
+input,select{width:100%;padding:11px;border:2px solid #dde;border-radius:9px;font-size:15px;box-sizing:border-box}
+.btn{width:100%;padding:13px;border:0;border-radius:10px;font-weight:800;margin-top:10px;background:#0A3D8F;color:#fff}
+.gold{background:#FFD700;color:#000}
+#installBtn{display:block;background:#00c853;color:#fff;padding:13px;border-radius:10px;width:100%;border:0;font-weight:800;margin-bottom:10px}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 18px;border-radius:30px;display:none;z-index:99}
+</style>
+</head>
+<body>
+<header><h1>† NAC SEPIK REPORTS</h1><p>District = Free Text - Type Anything</p></header>
+<nav>
+<button class="active" onclick="showTab('new',this)">New Report</button>
+<button onclick="showTab('hist',this)">History</button>
+<button onclick="showTab('sum',this)">Summary</button>
+</nav>
+
+<div id="new" class="tab active">
+<div class="card">
+<button id="installBtn">📲 TO INSTALL: Tap ⋮ → Add to Home screen → Install</button>
+
+<label>Receipt No. *</label><input id="receiptNo">
+<label>Congregation *</label><input id="cong" placeholder="Hambeli">
+<label>District * - TYPE ANY (free text)</label>
+<input id="dist" list="dl" placeholder="e.g. Central Yangoru, Sawosa">
+<datalist id="dl">
+<option value="Central Yangoru"><option value="Wewak"><option value="Maprik"><option value="Angoram"><option value="Vanimo"><option value="Lumi"><option value="Aitape"><option value="Yangoru"><option value="Sawosa"><option value="East Yangoru"><option value="West Yangoru">
+</datalist>
+<div style="font-size:11px;color:#0A3D8F;font-weight:700">✓ Type ANY district - exactly like Excel!</div>
+
+<label>Offering (K) *</label><input id="off" type="number" step="0.01">
+<label>Attendance *</label><input id="att" type="number">
+<label>Officiant 1 *</label><input id="o1">
+<label>Officiant 2</label><input id="o2">
+<label>Officiant 3</label><input id="o3">
+<label>Sealed</label><input id="se" type="number" value="0">
+<label>Book No.</label><input id="bn">
+<button class="btn" onclick="saveR()">† SAVE REPORT</button>
+<button class="btn gold" onclick="exp()">Export Excel CSV</button>
+<div id="msg"></div>
+</div>
+</div>
+
+<div id="hist" class="tab"><div class="card"><b>History</b><div id="hl"></div></div></div>
+<div id="sum" class="tab"><div class="card" id="sb"></div></div>
+<div id="toast"></div>
+
 <script>
-const K='nac_new';let R=JSON.parse(localStorage.getItem(K)||'[]');function init(){document.getElementById('year').value=new Date().getFullYear();document.getElementById('day').value=new Date().getDate();gen();renH();renS();}function gen(){document.getElementById('receiptNo').value=String(Date.now()).slice(-8);}function showTab(i,b){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));document.getElementById(i).classList.add('active');b.classList.add('active');if(i=='hist')renH();if(i=='sum')renS();}function toast(m){let e=document.getElementById('toast');e.textContent=m;e.style.display='block';setTimeout(()=>e.style.display='none',2500);}function saveR(){let d={receiptNo:document.getElementById('receiptNo').value.trim(),cong:document.getElementById('cong').value.trim(),dist:document.getElementById('dist').value.trim(),ampm:document.getElementById('ampm').value,day:document.getElementById('day').value,month:document.getElementById('month').value,year:document.getElementById('year').value,offering:parseFloat(document.getElementById('off').value)||0,att:parseInt(document.getElementById('att').value)||0,o1:document.getElementById('o1').value.trim(),o2:document.getElementById('o2').value.trim(),o3:document.getElementById('o3').value.trim(),sealed:document.getElementById('se').value,deaths:document.getElementById('de').value,bookNo:document.getElementById('bn').value,ssAtt:document.getElementById('ssa').value,ssOff:document.getElementById('sso').value,confAtt:document.getElementById('cfa').value,dateSaved:new Date().toLocaleString(),ts:Date.now()};if(!d.receiptNo||!d.cong||!d.dist||!d.att||!d.o1){toast('Fill Receipt, Congregation, District, Attendance, Officiant1');return;}R.unshift(d);localStorage.setItem(K,JSON.stringify(R));toast('Saved: '+d.cong+' - '+d.dist);gen();document.getElementById('cong').value='';document.getElementById('att').value='';document.getElementById('off').value='';renH();renS();}function renH(){let l=document.getElementById('hl');if(!R.length){l.innerHTML='No reports';return;}l.innerHTML=R.map((r,i)=>`<div style="border-bottom:1px solid #eee;padding:6px 0"><b>${r.cong}</b> - ${r.dist} #${r.receiptNo}<br>K${r.offering} | Att ${r.att} | ${r.o1} <button onclick="del(${i})">X</button></div>`).join('');}function del(i){if(confirm('Delete?')){R.splice(i,1);localStorage.setItem(K,JSON.stringify(R));renH();renS();}}function renS(){let b=document.getElementById('sb');if(!R.length){b.innerHTML='No data';return;}let tot=R.reduce((s,r)=>s+r.offering,0);let at=R.reduce((s,r)=>s+r.att,0);let by={};R.forEach(r=>{by[r.dist]=(by[r.dist]||0)+r.offering});b.innerHTML=`<h3>Summary</h3>Reports: ${R.length}<br>Total K${tot.toFixed(2)}<br>Attendance ${at}<hr>By District:<br>${Object.entries(by).map(([k,v])=>`${k}: K${v.toFixed(2)}`).join('<br>')}`;}function exp(){if(!R.length){toast('No data');return;}let h=['Receipt No','Date Saved','Congregation','District','AM/PM','Day','Month','Year','Offering','Attendance','Officiant1','Officiant2','Officiant3','Sealed','Deaths','SS Att','SS Off','Confirmands','BookNo'];let csv=h.join(',')+'\n';R.slice().reverse().forEach(r=>{let row=[r.receiptNo,r.dateSaved,r.cong,r.dist,r.ampm,r.day,r.month,r.year,r.offering,r.att,r.o1,r.o2,r.o3,r.sealed,r.deaths,r.ssAtt,r.ssOff,r.confAtt,r.bookNo];csv+=row.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')+'\n';});let blob=new Blob([csv],{type:'text/csv'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='NAC_Reports.csv';a.click();toast('Exported');}init();
-</script></body></html>
+const K='nac_new';let R=JSON.parse(localStorage.getItem(K)||'[]');
+function gen(){document.getElementById('receiptNo').value=String(Date.now()).slice(-8);}
+function showTab(i,b){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));document.getElementById(i).classList.add('active');b.classList.add('active');if(i=='hist')renH();if(i=='sum')renS();}
+function toast(m){let e=document.getElementById('toast');e.textContent=m;e.style.display='block';setTimeout(()=>e.style.display='none',2500);}
+function saveR(){let d={receiptNo:document.getElementById('receiptNo').value.trim(),cong:document.getElementById('cong').value.trim(),dist:document.getElementById('dist').value.trim(),offering:parseFloat(document.getElementById('off').value)||0,att:parseInt(document.getElementById('att').value)||0,o1:document.getElementById('o1').value.trim(),o2:document.getElementById('o2').value.trim(),o3:document.getElementById('o3').value.trim(),sealed:document.getElementById('se').value,bookNo:document.getElementById('bn').value,dateSaved:new Date().toLocaleString()};if(!d.cong||!d.dist||!d.att||!d.o1){toast('Fill Congregation, District, Attendance, Officiant1');return;}R.unshift(d);localStorage.setItem(K,JSON.stringify(R));toast('Saved: '+d.cong+' - '+d.dist);gen();document.getElementById('cong').value='';document.getElementById('att').value='';document.getElementById('off').value='';renH();renS();}
+function renH(){let l=document.getElementById('hl');if(!R.length){l.innerHTML='No reports';return;}l.innerHTML=R.map((r,i)=>`<div style="border-bottom:1px solid #eee;padding:6px 0"><b>${r.cong}</b> - ${r.dist} #${r.receiptNo}<br>K${r.offering} | Att ${r.att} <button onclick="del(${i})">X</button></div>`).join('');}
+function del(i){if(confirm('Delete?')){R.splice(i,1);localStorage.setItem(K,JSON.stringify(R));renH();renS();}}
+function renS(){let b=document.getElementById('sb');if(!R.length){b.innerHTML='No data';return;}let tot=R.reduce((s,r)=>s+r.offering,0);let at=R.reduce((s,r)=>s+r.att,0);let by={};R.forEach(r=>{by[r.dist]=(by[r.dist]||0)+r.offering});b.innerHTML=`<h3>Summary</h3>Reports: ${R.length}<br>Total K${tot.toFixed(2)}<br>Attendance ${at}<hr>By District:<br>${Object.entries(by).map(([k,v])=>`${k}: K${v.toFixed(2)}`).join('<br>')}`;}
+function exp(){if(!R.length){toast('No data');return;}let h=['Receipt','Congregation','District','Offering','Attendance','Officiant1','Date'];let csv=h.join(',')+'\n';R.slice().reverse().forEach(r=>{csv+=`"${r.receiptNo}","${r.cong}","${r.dist}",${r.offering},${r.att},"${r.o1}","${r.dateSaved}"\n`;});let blob=new Blob([csv],{type:'text/csv'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='NAC_Reports.csv';a.click();toast('Exported');}
+gen();renH();renS();
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js');}
+</script>
+</body>
+</html>
